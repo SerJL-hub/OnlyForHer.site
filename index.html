@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Letter</title>
+<style>
+/* General Styles */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+    overflow-x: hidden;
+}
+
+/* Envelope Animation */
+.envelope-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 80px;
+}
+
+#envelope {
+    width: 260px;
+    height: 180px;
+    background: #fff;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    transition: 0.3s;
+}
+
+#envelope:hover {
+    transform: scale(1.05);
+}
+
+#envelope:before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #f8bbd0;
+    clip-path: polygon(0 0, 100% 0, 50% 55%);
+    border-radius: 12px;
+}
+
+/* Paper Styles */
+.paper {
+    width: 85%;
+    margin: 40px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    display: none;
+    animation: fadeIn 0.7s ease forwards;
+}
+
+.paper h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #c2185b;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);} 
+    to   {opacity: 1; transform: translateY(0);} 
+}
+
+/* Falling petals */
+.petal {
+    position: fixed;
+    top: -10vh;
+    width: 14px; height: 14px;
+    background: rgba(255,182,193,0.85);
+    border-radius: 50%;
+    animation: fall linear infinite;
+    filter: blur(1px);
+}
+
+@keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(120vh) rotate(360deg); }
+}
+
+/* Music Button */
+#musicBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #c2185b;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 50px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Responsive Rose Flower */
+#flowerContainer {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 120px;
+    height: 120px;
+    display: none;
+    pointer-events: none;
+}
+
+.rose-petal {
+    position: absolute;
+    width: 40px;
+    height: 80px;
+    background: violet;
+    border-radius: 50% 50% 50% 50%;
+    transform-origin: bottom center;
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+    animation: bloom 1.2s forwards;
+}
+
+.rose-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 25px;
+    height: 25px;
+    background: #dda0dd;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px rgba(221,160,221,0.7);
+}
+
+@keyframes bloom {
+    0% { transform: scale(0) rotate(0deg); opacity:0; }
+    60% { transform: scale(1.1) rotate(var(--rotate)); opacity:1; }
+    100% { transform: scale(1) rotate(var(--rotate)); opacity:1; }
+}
+
+/* Responsive scaling for larger screens */
+@media screen and (min-width: 1000px) {
+    #flowerContainer { width: 90px; height: 90px; }
+    .rose-petal { width: 30px; height: 60px; }
+    .rose-center { width: 20px; height: 20px; }
+}
+</style>
+</head>
+<body>
+
+<audio id="bgm" src="bgm.mp3" loop></audio>
+
+<div class="envelope-container">
+    <div id="envelope"></div>
+</div>
+
+<div class="paper" id="paper">
+    <h1>My Love Letter</h1>
+    <p>Hi… I just wanted to write something longer this time, something that doesn't rush, something that lets every word breathe. Maybe you won't happen to read this all at once, and that's okay. I wrote this with no pressure, only honesty.</p>
+    <p>From the very first moment I noticed you, there was something soft yet powerful about the way you carried yourself. The way you smiled, the way you listened, the way you treated people—it stayed with me. I didn't say anything at first, not because I didn’t feel anything, but because feelings grow quietly before they dare to speak.</p>
+    <p>Days passed and suddenly you were part of the small details of my life. Songs sounded different. Mornings felt lighter. Even ordinary days became more meaningful knowing you existed somewhere under the same sky.</p>
+    <p>This card can hold more than a thousand words, but even that wouldn’t be enough to explain everything. What matters most is simple: you inspired me. You reminded me that it's okay to care deeply, to hope honestly, and to admire someone without expecting anything in return.</p>
+    <p>I don’t know where our paths may lead, but I do know this — writing to you feels right. Whether near or far, busy or resting, I will quietly wish you good days and peaceful nights.</p>
+    <p>If you ever doubt yourself, remember that someone out there sees how amazing and strong you really are. This letter is proof of that.</p>
+    <p>Thank you for existing, for being you, and for unknowingly becoming a beautiful part of my story.</p>
+    <p>— From someone who truly cares 💗</p>
+</div>
+
+<button id="musicBtn">Play Music 🎵</button>
+<div id="flowerContainer"></div>
+
+<script>
+const envelope = document.getElementById('envelope');
+const paper = document.getElementById('paper');
+const bgm = document.getElementById('bgm');
+const musicBtn = document.getElementById('musicBtn');
+const flowerContainer = document.getElementById('flowerContainer');
+let musicPlaying = false;
+
+// Envelope click → open letter + falling petals + bloom flower
+envelope.addEventListener('click', () => {
+    envelope.style.transform = 'scale(0.2) translateY(-50px)';
+    envelope.style.opacity = '0';
+    setTimeout(() => { 
+        envelope.style.display = 'none'; 
+        paper.style.display = 'block'; 
+        buildSmallRose(); 
+    }, 600);
+
+    // Falling petals
+    for (let i = 0; i < 40; i++) {
+        const p = document.createElement('div');
+        p.className = 'petal';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDuration = (6 + Math.random() * 5) + 's';
+        p.style.animationDelay = Math.random() * 5 + 's';
+        document.body.appendChild(p);
+    }
+});
+
+// Music button toggle
+musicBtn.addEventListener('click', () => {
+    if (!musicPlaying) {
+        bgm.volume = 0.2;
+        bgm.play();
+        musicBtn.textContent = 'Pause Music ⏸️';
+    } else {
+        bgm.pause();
+        musicBtn.textContent = 'Play Music 🎵';
+    }
+    musicPlaying = !musicPlaying;
+});
+
+// Build small responsive 4-petal violet rose
+function buildSmallRose() {
+    if(flowerContainer.children.length > 0) return;
+    flowerContainer.style.display = 'block';
+
+    const petalCount = 4;
+    for(let i = 0; i < petalCount; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'rose-petal';
+        const angle = (360 / petalCount) * i;
+        petal.style.setProperty('--rotate', angle + 'deg');
+        petal.style.transform = `scale(0) rotate(${angle}deg)`;
+        petal.style.animationDelay = (i * 0.1) + 's';
+        flowerContainer.appendChild(petal);
+    }
+
+    const center = document.createElement('div');
+    center.className = 'rose-center';
+    flowerContainer.appendChild(center);
+}
+</script>
+
+</body>
+</html>
+
+
